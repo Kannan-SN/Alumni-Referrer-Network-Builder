@@ -24,9 +24,15 @@ class Config:
     CHUNK_SIZE = 1000
     CHUNK_OVERLAP = 200
     
-    # Model Configuration
+    # Model Configuration - UPDATED MODEL NAMES
     EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-    GEMINI_MODEL = "gemini-pro"
+    
+    # Updated Gemini model names for current API
+    GEMINI_MODEL = "gemini-1.5-flash"  # Changed from "gemini-pro"
+    # Alternative models you can try:
+    # GEMINI_MODEL = "gemini-1.5-pro"
+    # GEMINI_MODEL = "gemini-1.0-pro"
+    
     TEMPERATURE = 0.7
     MAX_TOKENS = 1000
     
