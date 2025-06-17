@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Rahul Sharma",
+    "email": "rahul.sharma@google.com",
+    "graduation_year": 2019,
+    "degree": "Computer Science",
+    "current_company": "Google",
+    "current_role": "Senior Software Engineer",
+    "location": "Bangalore, India",
+    "skills": ["Python", "Machine Learning", "TensorFlow", "Kubernetes", "Go"],
+    "linkedin_url": "https://linkedin.com/in/rahulsharma",
+    "domain": "Software Engineering",
+    "experience_years": 6,
+    "previous_companies": ["Microsoft", "Flipkart"]
+  },
+  {
+    "name": "Priya Patel",
+    "email": "priya.patel@microsoft.com",
+    "graduation_year": 2018,
+    "degree": "Computer Science",
+    "current_company": "Microsoft",
+    "current_role": "Principal Data Scientist",
+    "location": "Hyderabad, India",
+    "skills": ["Python", "R", "Azure ML", "SQL", "Deep Learning"],
+    "linkedin_url": "https://linkedin.com/in/priyapatel",
+    "domain": "Data Science",
+    "experience_years": 7,
+    "previous_companies": ["Amazon", "Wipro"]
+  },
+  {
+    "name": "Amit Kumar",
+    "email": "amit.kumar@amazon.com",
+    "graduation_year": 2020,
+    "degree": "Computer Science",
+    "current_company": "Amazon",
+    "current_role": "Software Development Engineer II",
+    "location": "Chennai, India",
+    "skills": ["Java", "AWS", "Docker", "Microservices", "React"],
+    "linkedin_url": "https://linkedin.com/in/amitkumar",
+    "domain": "Software Engineering",
+    "experience_years": 5,
+    "previous_companies": ["TCS", "Accenture"]
+  }
+]

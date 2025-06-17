@@ -1,0 +1,365 @@
+
+.env.development.local
+.env.test.local
+.env.production.local
+
+# API Keys and Secrets
+*.key
+secrets.json
+config/secrets.py
+keys/
+credentials/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+alumni_env/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# Streamlit
+.streamlit/
+.streamlit/secrets.toml
+streamlit_app.log
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+data/alumni.db
+data/vector_store/
+data/chroma_db/
+data/embeddings/
+*.log
+
+# MongoDB dumps
+dumps/
+backup/
+*.bson
+*.json.backup
+
+# Vector Store / ChromaDB
+chroma_db/
+vector_store/
+embeddings_cache/
+.chroma/
+persist/
+
+# Machine Learning Models
+models/
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+*.pb
+transformers_cache/
+sentence_transformers_cache/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*.ipynb
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# PyCharm
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Logs
+logs/
+*.log
+*.out
+*.err
+streamlit.log
+app.log
+error.log
+debug.log
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Data files (protect sensitive information)
+data/real_alumni.json
+data/production_data/
+data/sensitive/
+data/user_data/
+data/exports/
+*.csv
+*.xlsx
+*.xls
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+.docker/
+
+# Node modules (if any frontend components)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Redis dump files
+dump.rdb
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Unit test / coverage reports
+.coverage
+.pytest_cache/
+.coverage.*
+coverage/
+htmlcov/
+
+# Sphinx documentation
+docs/_build/
+docs/build/
+
+# PyBuilder
+target/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# Config files with sensitive data
+config/production.py
+config/local.py
+config/database_prod.py
+
+# Alumni data backups
+alumni_backup/
+student_backup/
+referral_backup/
+
+# Performance profiling
+*.prof
+
+# Large files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Cache directories
+.cache/
+cache/
+__pycache__/
+
+# Streamlit specific
+.streamlit/config.toml
+.streamlit/credentials.toml
+
+# Weights and Biases (if used for ML tracking)
+wandb/
+
+# MLflow (if used for ML tracking)
+mlruns/
+mlartifacts/
+
+# TensorBoard logs
+runs/
+logs/tensorboard/
+
+# FastAPI / Uvicorn logs (if used)
+access.log
+uvicorn.log
+
+# Local development files
+local_config.py
+dev_settings.py
+test_data/
+sample_outputs/
+
+# Generated artifacts
+generated/
+output/
+exports/
+reports/
+
+# Email templates (if containing sensitive info)
+templates/emails/*.html
+templates/messages/*.txt
+
+# User uploads
+uploads/
+user_files/
+attachments/
+
+# SSL certificates
+*.pem
+*.crt
+*.key
+ssl/
+
+# Redis
+*.rdb
+
+# Elasticsearch
+elasticsearch/
+
+# Neo4j
+neo4j/
+
+# Apache Kafka
+kafka-logs/
+
+# Grafana
+grafana/
+
+# Prometheus
+prometheus/
+
+# Local database instances
+postgres_data/
+mysql_data/
+mongodb_data/
+
+# Backup files
+*.backup
+*.dump
+*.sql
+
+# Package files
+*.deb
+*.rpm
+*.dmg
+*.pkg
+
+# Compiled binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Temporary Python files
+*.pyc
+*.pyo
+*.pyd
+
+# Local test files
+test_*.py
+*_test.py
+test_data/
+
+# Documentation builds
+site/
+public/
+
+# Lock files (keep these for reproducible builds)
+# Pipfile.lock  # Uncomment if using Pipenv
+# poetry.lock   # Uncomment if using Poetry
+
+# Local settings override
+local_settings.py
+settings_local.py
+
+# Production deployment files
+deploy/
+deployment/
+k8s/
+kubernetes/
+
+# Monitoring and logging
+monitoring/
+alerting/
+
+# Custom exclusions for this project
+data/alumni_embeddings.pkl
+data/similarity_matrix.npy
+models/custom_embedding_model/
+cache/alumni_cache.json
+
+# Streamlit app state
+.streamlit/app_state.json
+
+# Development notes
+NOTES.md
+TODO.md
+DEVELOPMENT.md
+
+# Sensitive configuration
+firebase_config.json
+google_credentials.json
+aws_credentials.json
+
+# Performance testing
+load_test_results/
+benchmark_results/
