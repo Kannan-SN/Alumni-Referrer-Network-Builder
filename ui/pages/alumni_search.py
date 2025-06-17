@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 from ui.components import UIComponents
 from agents.alumni_mining_agent import AlumniMiningAgent

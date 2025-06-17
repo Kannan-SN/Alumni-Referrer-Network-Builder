@@ -1,4 +1,3 @@
-```python
 import re
 from typing import Dict, Any, List, Tuple
 
@@ -6,7 +5,7 @@ class InputValidator:
     @staticmethod
     def validate_email(email: str) -> bool:
         """Validate email format"""
-        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'  # Added missing closing quote and $
         return re.match(pattern, email) is not None
     
     @staticmethod

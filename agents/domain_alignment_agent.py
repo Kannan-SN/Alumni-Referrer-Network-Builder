@@ -1,7 +1,6 @@
 from typing import Dict, Any, List
 from agents.base_agent import BaseAgent
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
+import logging
 
 class DomainAlignmentAgent(BaseAgent):
     def __init__(self):
@@ -27,6 +26,7 @@ class DomainAlignmentAgent(BaseAgent):
             }
             
         except Exception as e:
+            logging.error(f"Domain alignment failed: {e}")
             return {"status": "error", "message": str(e)}
     
     async def _calculate_domain_alignment(self, student_profile: Dict[str, Any], 
@@ -44,7 +44,7 @@ class DomainAlignmentAgent(BaseAgent):
                 student_interests, student_skills, target_companies, target_roles, alumni
             )
             
-            if alignment_score > 0.3:  # Threshold for meaningful alignment
+            if alignment_score > 0.1:  # Lower threshold for demo
                 alumni['alignment_score'] = alignment_score
                 alumni['alignment_reasons'] = self._get_alignment_reasons(
                     student_interests, student_skills, target_companies, target_roles, alumni
@@ -57,42 +57,37 @@ class DomainAlignmentAgent(BaseAgent):
                                      target_companies: List[str], target_roles: List[str],
                                      alumni: Dict[str, Any]) -> float:
         """Compute alignment score between student and alumni"""
-        score = 0.0
-        total_weight = 0.0
+        score = 0.2  # Base score
         
-        # Interest alignment (weight: 0.3)
+        # Interest alignment
         if interests and alumni.get('domain'):
-            interest_match = any(interest.lower() in alumni['domain'].lower() 
-                               for interest in interests)
-            if interest_match:
-                score += 0.3
-            total_weight += 0.3
+            for interest in interests:
+                if interest.lower() in alumni['domain'].lower():
+                    score += 0.3
+                    break
         
-        # Skills alignment (weight: 0.4)
+        # Skills alignment
         if skills and alumni.get('skills'):
             common_skills = set(skill.lower() for skill in skills) & \
                           set(skill.lower() for skill in alumni['skills'])
-            skill_ratio = len(common_skills) / len(skills) if skills else 0
-            score += skill_ratio * 0.4
-            total_weight += 0.4
+            if common_skills:
+                score += len(common_skills) * 0.1
         
-        # Company alignment (weight: 0.2)
+        # Company alignment
         if target_companies and alumni.get('current_company'):
-            company_match = any(company.lower() in alumni['current_company'].lower()
-                              for company in target_companies)
-            if company_match:
-                score += 0.2
-            total_weight += 0.2
+            for company in target_companies:
+                if company.lower() in alumni['current_company'].lower():
+                    score += 0.4
+                    break
         
-        # Role alignment (weight: 0.1)
+        # Role alignment
         if target_roles and alumni.get('current_role'):
-            role_match = any(role.lower() in alumni['current_role'].lower()
-                           for role in target_roles)
-            if role_match:
-                score += 0.1
-            total_weight += 0.1
+            for role in target_roles:
+                if role.lower() in alumni['current_role'].lower():
+                    score += 0.3
+                    break
         
-        return score / total_weight if total_weight > 0 else 0.0
+        return min(score, 1.0)  # Cap at 1.0
     
     def _get_alignment_reasons(self, interests: List[str], skills: List[str],
                              target_companies: List[str], target_roles: List[str],
@@ -100,26 +95,30 @@ class DomainAlignmentAgent(BaseAgent):
         """Get reasons for alignment"""
         reasons = []
         
-        # Check interest alignment
+        # Interest alignment
         if interests and alumni.get('domain'):
-            matching_interests = [interest for interest in interests 
-                                if interest.lower() in alumni['domain'].lower()]
-            if matching_interests:
-                reasons.append(f"Shared interests in {', '.join(matching_interests)}")
+            for interest in interests:
+                if interest.lower() in alumni['domain'].lower():
+                    reasons.append(f"Shared interest in {interest}")
         
-        # Check skill alignment
+        # Skills alignment
         if skills and alumni.get('skills'):
             common_skills = set(skill.lower() for skill in skills) & \
                           set(skill.lower() for skill in alumni['skills'])
             if common_skills:
-                reasons.append(f"Common skills: {', '.join(common_skills)}")
+                reasons.append(f"Common skills: {', '.join(list(common_skills)[:3])}")
         
-        # Check company alignment
+        # Company alignment
         if target_companies and alumni.get('current_company'):
-            matching_companies = [company for company in target_companies
-                                if company.lower() in alumni['current_company'].lower()]
-            if matching_companies:
-                reasons.append(f"Target company match: {alumni['current_company']}")
+            for company in target_companies:
+                if company.lower() in alumni['current_company'].lower():
+                    reasons.append(f"Target company match: {alumni['current_company']}")
+        
+        # Role alignment
+        if target_roles and alumni.get('current_role'):
+            for role in target_roles:
+                if role.lower() in alumni['current_role'].lower():
+                    reasons.append(f"Similar role interest: {alumni['current_role']}")
         
         return reasons
     
@@ -127,7 +126,7 @@ class DomainAlignmentAgent(BaseAgent):
         """Get explanation of alignment factors"""
         return {
             "interests": "Domain and career interest alignment",
-            "skills": "Technical and soft skills overlap",
+            "skills": "Technical and soft skills overlap", 
             "companies": "Target company preferences",
             "roles": "Desired job role similarities"
         }

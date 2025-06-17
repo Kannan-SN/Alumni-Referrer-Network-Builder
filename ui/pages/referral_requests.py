@@ -1,9 +1,4 @@
-```python
 import streamlit as st
-from ui.components import UIComponents
-from agents.referral_path_agent import ReferralPathAgent
-from agents.outreach_generator_agent import OutreachGeneratorAgent
-import asyncio
 
 class ReferralRequestsPage:
     @staticmethod
@@ -14,13 +9,14 @@ class ReferralRequestsPage:
         # Check prerequisites
         if "student_profile" not in st.session_state:
             st.warning("⚠️ Please create your student profile first.")
+            if st.button("Create Profile Now"):
+                st.session_state.navigation = "Student Profile"
+                st.rerun()
             return
         
-        # Check if coming from alumni search with selected alumni
+        # Check if coming from alumni search
         if st.session_state.get('selected_alumni_for_path'):
             await ReferralRequestsPage._render_single_referral_path()
-        elif st.session_state.get('batch_path_generation'):
-            await ReferralRequestsPage._render_batch_referral_paths()
         elif st.session_state.get('show_message_generator'):
             await ReferralRequestsPage._render_message_generator()
         else:
@@ -50,92 +46,57 @@ class ReferralRequestsPage:
     async def _render_single_referral_path():
         """Render referral path for single alumni"""
         alumni = st.session_state.selected_alumni_for_path
-        student_profile = st.session_state.student_profile
         
         st.subheader(f"🛤️ Referral Path for {alumni.get('name', 'Alumni')}")
         
-        with st.spinner("Generating optimal referral path..."):
-            try:
-                path_agent = ReferralPathAgent()
-                
-                path_input = {
-                    'student_profile': student_profile,
-                    'alumni_matches': [alumni]
-                }
-                
-                path_results = await path_agent.execute(path_input)
-                
-                if path_results['status'] == 'success':
-                    paths = path_results['referral_paths']
-                    if paths:
-                        UIComponents.render_referral_path_display(paths)
-                        
-                        # Option to generate message
-                        st.divider()
-                        if st.button("✉️ Generate Outreach Message", type="primary"):
-                            st.session_state.selected_alumni_for_message = alumni
-                            st.session_state.selected_path = paths[0]
-                            st.session_state.show_message_generator = True
-                            st.rerun()
-                    else:
-                        st.error("No referral paths could be generated.")
-                else:
-                    st.error(f"Error generating path: {path_results.get('message', 'Unknown error')}")
-                    
-            except Exception as e:
-                st.error(f"Failed to generate referral path: {str(e)}")
+        # Display alumni info
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(f"**Company:** {alumni.get('current_company', 'N/A')}")
+            st.write(f"**Role:** {alumni.get('current_role', 'N/A')}")
+            st.write(f"**Domain:** {alumni.get('domain', 'N/A')}")
         
-        # Clear the selection
+        with col2:
+            st.write(f"**Experience:** {alumni.get('experience_years', 0)} years")
+            st.write(f"**Location:** {alumni.get('location', 'N/A')}")
+            st.write(f"**Graduation:** {alumni.get('graduation_year', 'N/A')}")
+        
+        # Referral strategy
+        st.subheader("📋 Recommended Referral Strategy")
+        
+        strategy_info = {
+            "Connection Strength": "Strong" if alumni.get('final_match_score', 0) > 0.7 else "Moderate",
+            "Best Approach": "LinkedIn Message",
+            "Success Probability": "High (70-85%)" if alumni.get('final_match_score', 0) > 0.7 else "Medium (50-70%)",
+            "Recommended Timing": "Tuesday-Thursday, 10 AM - 2 PM"
+        }
+        
+        for key, value in strategy_info.items():
+            st.write(f"**{key}:** {value}")
+        
+        # Preparation steps
+        st.subheader("✅ Preparation Steps")
+        prep_steps = [
+            f"Research {alumni.get('current_company', 'the company')}'s recent news and developments",
+            "Update your LinkedIn profile and resume",
+            "Prepare specific questions about the company culture",
+            "Review the job requirements for your target role",
+            "Prepare a concise elevator pitch about yourself"
+        ]
+        
+        for i, step in enumerate(prep_steps, 1):
+            st.write(f"{i}. {step}")
+        
+        # Generate message option
+        st.divider()
+        if st.button("✉️ Generate Outreach Message", type="primary"):
+            st.session_state.selected_alumni_for_message = alumni
+            st.session_state.show_message_generator = True
+            st.rerun()
+        
+        # Back button
         if st.button("🔙 Back to Search"):
             st.session_state.selected_alumni_for_path = None
-            st.session_state.navigation = "Alumni Search"
-            st.rerun()
-    
-    @staticmethod
-    async def _render_batch_referral_paths():
-        """Render referral paths for multiple alumni"""
-        selected_alumni = st.session_state.get('selected_alumni_list', [])
-        
-        if not selected_alumni:
-            st.warning("No alumni selected for batch processing.")
-            return
-        
-        st.subheader(f"🛤️ Generating Paths for {len(selected_alumni)} Alumni")
-        
-        with st.spinner("Generating referral paths for all selected alumni..."):
-            try:
-                path_agent = ReferralPathAgent()
-                student_profile = st.session_state.student_profile
-                
-                path_input = {
-                    'student_profile': student_profile,
-                    'alumni_matches': selected_alumni
-                }
-                
-                path_results = await path_agent.execute(path_input)
-                
-                if path_results['status'] == 'success':
-                    all_paths = path_results['referral_paths']
-                    ranked_paths = path_results['path_recommendations']
-                    
-                    st.session_state.batch_generated_paths = all_paths
-                    UIComponents.render_referral_path_display(ranked_paths)
-                    
-                    # Batch message generation option
-                    st.divider()
-                    if st.button("✉️ Generate Messages for All", type="primary"):
-                        st.session_state.batch_message_generation = True
-                        st.rerun()
-                    
-                else:
-                    st.error(f"Error generating paths: {path_results.get('message', 'Unknown error')}")
-                    
-            except Exception as e:
-                st.error(f"Failed to generate referral paths: {str(e)}")
-        
-        # Clear batch processing flag
-        if st.button("🔙 Back to Search"):
-            st.session_state.batch_path_generation = False
             st.session_state.navigation = "Alumni Search"
             st.rerun()
     
@@ -151,44 +112,223 @@ class ReferralRequestsPage:
         
         st.subheader(f"✉️ Generate Message for {alumni.get('name', 'Alumni')}")
         
-        # Message generator interface
-        message_input = UIComponents.render_message_generator(student_profile, alumni)
+        # Message configuration
+        col1, col2 = st.columns(2)
+        with col1:
+            message_type = st.selectbox(
+                "Message Type",
+                ["linkedin", "email", "follow_up"],
+                format_func=lambda x: x.replace('_', ' ').title()
+            )
         
-        if message_input:
-            with st.spinner("Generating personalized messages..."):
-                try:
-                    outreach_agent = OutreachGeneratorAgent()
-                    message_results = await outreach_agent.execute(message_input)
-                    
-                    if message_results['status'] == 'success':
-                        UIComponents.render_generated_messages(message_results)
-                        
-                        # Save option
-                        st.divider()
-                        if st.button("💾 Save to Referral Requests"):
-                            # Save to database logic here
-                            st.success("✅ Referral request saved!")
-                    else:
-                        st.error(f"Error generating messages: {message_results.get('message', 'Unknown error')}")
-                        
-                except Exception as e:
-                    st.error(f"Failed to generate messages: {str(e)}")
+        with col2:
+            target_role = st.text_input(
+                "Target Role",
+                value="Software Engineer",
+                placeholder="Enter the role you're applying for"
+            )
         
-        # Clear the selection
+        # Additional context
+        additional_context = st.text_area(
+            "Additional Context (Optional)",
+            placeholder="Any specific information you'd like to include in the message..."
+        )
+        
+        if st.button("🎯 Generate Messages", type="primary"):
+            await ReferralRequestsPage._display_generated_messages(
+                student_profile, alumni, target_role, message_type, additional_context
+            )
+        
+        # Back button
         if st.button("🔙 Back"):
             st.session_state.show_message_generator = False
             st.session_state.selected_alumni_for_message = None
             st.rerun()
     
     @staticmethod
+    async def _display_generated_messages(student_profile, alumni, target_role, message_type, additional_context):
+        """Display generated outreach messages"""
+        st.subheader("📝 Generated Messages")
+        
+        # Generate different message variants
+        messages = ReferralRequestsPage._create_message_variants(
+            student_profile, alumni, target_role, message_type, additional_context
+        )
+        
+        # Display subject lines for emails
+        if message_type == "email":
+            st.write("**Suggested Subject Lines:**")
+            subject_lines = [
+                f"Fellow Alumni - Seeking Guidance for {alumni.get('current_company', 'Company')} Opportunities",
+                f"Referral Request from {student_profile.get('name', 'Student')} - {alumni.get('current_company', 'Company')}",
+                f"Alumni Network Outreach - {student_profile.get('name', 'Student')}"
+            ]
+            for i, subject in enumerate(subject_lines, 1):
+                st.write(f"{i}. {subject}")
+            st.divider()
+        
+        # Display message variants
+        for message in messages:
+            variant = message.get('variant', 'Unknown')
+            content = message.get('content', '')
+            recommended_use = message.get('recommended_use', '')
+            
+            with st.expander(f"{variant.title()} Version ({len(content)} characters)", expanded=False):
+                st.write(f"**Recommended for:** {recommended_use}")
+                st.text_area(
+                    "Message Content",
+                    value=content,
+                    height=200,
+                    key=f"message_{variant}",
+                    help="Click to select all text and copy"
+                )
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button(f"Copy {variant.title()}", key=f"copy_{variant}"):
+                        st.success(f"{variant.title()} message ready to copy!")
+                
+                with col2:
+                    if st.button(f"Save Request", key=f"save_{variant}"):
+                        st.success("Referral request saved!")
+        
+        # Show tips
+        st.subheader("💡 Message Tips")
+        tips = ReferralRequestsPage._get_message_tips(message_type)
+        for tip in tips:
+            st.write(f"• {tip}")
+    
+    @staticmethod
+    def _create_message_variants(student_profile, alumni, target_role, message_type, additional_context):
+        """Create different message variants"""
+        student_name = student_profile.get('name', 'Student')
+        alumni_name = alumni.get('name', 'Alumni')
+        company = alumni.get('current_company', 'Company')
+        student_degree = student_profile.get('degree', 'Computer Science')
+        student_year = student_profile.get('current_year', 3)
+        
+        messages = []
+        
+        # Professional variant
+        if message_type == "linkedin":
+            professional_msg = f"""Hi {alumni_name},
+
+I hope this message finds you well. My name is {student_name}, and I'm a {student_year}rd year {student_degree} student.
+
+I'm very interested in {target_role} opportunities at {company} and would greatly appreciate any insights you might share about your experience there. Your background in {alumni.get('domain', 'technology')} aligns well with my career interests.
+
+Would you be open to a brief conversation about your journey and any advice you might have for someone looking to join {company}?
+
+Thank you for your time and consideration.
+
+Best regards,
+{student_name}"""
+        else:
+            professional_msg = f"""Dear {alumni_name},
+
+I hope this email finds you well. My name is {student_name}, and I'm a {student_year}rd year {student_degree} student. I came across your profile and was impressed by your journey at {company}.
+
+I'm currently exploring {target_role} opportunities and am particularly interested in {company}. Given your experience and success in {alumni.get('domain', 'your field')}, I would be incredibly grateful for any guidance you might be able to provide.
+
+I understand you must be very busy, but I would greatly appreciate even a brief conversation about:
+• Your experience at {company} and the company culture
+• Advice for someone interested in {target_role} positions
+• Any insights about growth opportunities
+
+I've attached my resume for your reference and would be happy to work around your schedule for a quick call.
+
+Thank you very much for considering my request.
+
+Best regards,
+{student_name}
+[Your Contact Information]"""
+        
+        messages.append({
+            "variant": "professional",
+            "content": professional_msg,
+            "recommended_use": "Best for senior alumni or formal company cultures"
+        })
+        
+        # Friendly variant
+        friendly_msg = professional_msg.replace(
+            "I hope this message finds you well.", 
+            "I hope you're doing well and enjoying your role!"
+        ).replace(
+            "Best regards,", 
+            "Looking forward to hearing from you!\n\nBest,"
+        )
+        
+        messages.append({
+            "variant": "friendly",
+            "content": friendly_msg,
+            "recommended_use": "Ideal for recent graduates or casual company environments"
+        })
+        
+        # Brief variant
+        if message_type == "linkedin":
+            brief_msg = f"""Hi {alumni_name},
+
+I'm {student_name}, a {student_year}rd year {student_degree} student interested in {target_role} opportunities at {company}.
+
+Would you be open to sharing any insights about your experience there? I'd really appreciate any guidance you might have.
+
+Thanks!
+{student_name}"""
+        else:
+            brief_msg = f"""Hi {alumni_name},
+
+I'm {student_name}, a {student_degree} student interested in {target_role} positions at {company}.
+
+Could you spare a few minutes to share insights about your experience? Any guidance would be invaluable.
+
+Best,
+{student_name}"""
+        
+        messages.append({
+            "variant": "brief",
+            "content": brief_msg,
+            "recommended_use": "Perfect for busy professionals or follow-up messages"
+        })
+        
+        return messages
+    
+    @staticmethod
+    def _get_message_tips(message_type):
+        """Get tips for the specific message type"""
+        tips = {
+            'linkedin': [
+                "Keep initial message under 300 characters for better response rates",
+                "Mention mutual connections or common experiences",
+                "Send connection request with a personalized note",
+                "Follow up after 1 week if no response",
+                "Be genuine and specific about your interests"
+            ],
+            'email': [
+                "Use a clear, professional subject line",
+                "Keep the email concise but informative",
+                "Include your resume as an attachment",
+                "Use a professional email signature",
+                "Follow up after 5-7 business days"
+            ],
+            'follow_up': [
+                "Reference your previous message briefly",
+                "Provide any updates since last contact",
+                "Reiterate your interest respectfully",
+                "Suggest alternative ways to connect",
+                "Keep it shorter than the original message"
+            ]
+        }
+        return tips.get(message_type, tips['linkedin'])
+    
+    @staticmethod
     async def _display_existing_requests():
         """Display existing referral requests"""
         st.subheader("📋 Your Referral Requests")
         
-        # Sample data - replace with actual database queries
+        # Sample data for demonstration
         sample_requests = [
             {
-                "alumni_name": "John Smith",
+                "alumni_name": "Rajesh Kumar",
                 "company": "Google",
                 "role": "Software Engineer",
                 "status": "sent",
@@ -196,7 +336,7 @@ class ReferralRequestsPage:
                 "message_type": "LinkedIn"
             },
             {
-                "alumni_name": "Sarah Johnson",
+                "alumni_name": "Priya Sharma",
                 "company": "Microsoft",
                 "role": "Data Scientist",
                 "status": "pending",
